@@ -1,0 +1,9 @@
+{
+  "name": "mission-control",
+  "version": "0.1.0",
+  "description": "A live pane beside the chat: what every subagent and workflow agent is doing right now, at what effort, how long it has been at it, and where its time went",
+  "author": {
+    "name": "Kevin Huff"
+  },
+  "types": "./types/index.d.ts"
+}
