@@ -4,7 +4,7 @@ A live pane for Claude Code that shows what your subagents and workflow agents a
 
 The repo also carries the sprint workflow that Mission Control was built with and for (`workflows/sprint.js`). Much of the pane was built and fixed by that workflow running on this repo.
 
-![Mission Control docked beside a Claude Code session, showing live tiles, usage, effort and three finished sprints](docs/screenshot.png)
+![Mission Control docked beside a Claude Code session after a long sprint: live tiles, usage, the effort and model mix, the feed and where the time went](docs/screenshot.png)
 
 ## Install
 
