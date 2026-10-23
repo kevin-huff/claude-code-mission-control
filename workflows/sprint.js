@@ -543,7 +543,7 @@ if (givenIssues.length) {
       'You are the decision layer of a sprint. Explore the code and anything else you need, decide how the work gets done, and plan it as tickets.',
       `Goal: ${goal}`,
       context ? `Context: ${context}` : '',
-      extraChecks ? `Checks Kevin wants run: ${extraChecks}` : '',
+      extraChecks ? `Checks the user wants run: ${extraChecks}` : '',
       'Read only what you need to cut the tickets and pin the contracts. Builders read the code themselves, so a task names files, functions and the exact change rather than quoting code.',
       PLAN_RULES,
       'Do not change any files. Return the plan.',

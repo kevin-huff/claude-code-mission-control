@@ -637,6 +637,12 @@ export function journalPath(run: RunRow): string | null {
   return run.dir ? `${run.dir}/subagents/workflows/${run.id}/journal.jsonl` : null
 }
 
+// A run has no folder when it began before this session's folder was known, or when an older pane recorded
+// it. Its journal is most likely in this session's folder, so it adopts that one; a miss marks the journal gone.
+export function adoptDir(store: Store, run: RunRow): void {
+  if (!run.dir && store.transcriptDir) run.dir = store.transcriptDir
+}
+
 const PLAN_MAX = 40
 const FIX_MAX = 2 * PLAN_MAX
 const DEFAULT_TICKETS = 16

@@ -32,6 +32,17 @@ async function prefsOf($: EngineInterface): Promise<Prefs> {
   return { ...PREFS, ...(await read($, prefsAtom)) }
 }
 
+// Claude Code's tool calls carry no transcript path; its classic hook events do. The workflow journals sit in the
+// folder beside the main session's transcript, <session id>.jsonl, so only that file is taken.
+function learnTranscript(rt: Runtime, path: unknown) {
+  if (typeof path !== 'string' || !path.endsWith('.jsonl')) return
+  if (rt.sessionId && !path.endsWith(`/${rt.sessionId}.jsonl`)) return
+  const dir = path.slice(0, -'.jsonl'.length)
+  if (rt.store.transcriptDir === dir) return
+  rt.store.transcriptDir = dir
+  rt.store.dirty = true
+}
+
 // Each flush also lands in /tmp/claude-<uid>/mission-control-<session>.json, inside the
 // per-user Claude temp folder (mode 700, so only this account reads it), so scripts and other
 // sessions of the same user can read what the pane shows. Where that folder can't be made or
@@ -63,6 +74,7 @@ async function flush($: EngineInterface, rt: Runtime, now: number) {
 async function readJournals($: EngineInterface, rt: Runtime, now: number) {
   for (const run of rt.store.runs.values()) {
     if (!D.journalWanted(rt.store, run) || rt.journalGone.has(run.id)) continue
+    D.adoptDir(rt.store, run)
     const path = D.journalPath(run)
     if (!path) continue
     const live = run.endedAt === null
@@ -220,6 +232,21 @@ export const register: Register = on => {
     rt.timer?.cancel()
     rt.timer = $.clock.every(1_000, () => void beat($, rt))
     return result
+  })
+
+  // These events gate the session and the prompt, so a fault here must never stop either.
+  on('classic.SessionStart', async ($, e, next) => {
+    try {
+      if (e.agent_type === undefined) learnTranscript(rt, e.transcript_path)
+    } catch {}
+    return next(e)
+  })
+
+  on('classic.UserPromptSubmit', async ($, e, next) => {
+    try {
+      learnTranscript(rt, e.transcript_path)
+    } catch {}
+    return next(e)
   })
 
   on('session.end', async ($, e, next) => {
